@@ -1,0 +1,10 @@
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+categories = ['A', 'B', 'C', 'D']
+values = [10, 20, 15, 25]
+
+sns.barplot(x=categories, y=values)
+plt.title("Bar Chart using Seaborn")
+
+plt.show()
