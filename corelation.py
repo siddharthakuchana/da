@@ -1,19 +1,27 @@
-import pandas as pd 
+import pandas as pd
+import seaborn as sns
 import matplotlib.pyplot as plt
-data = {
-    'Ad_Spend': [100,150,120,130,170,160,180,200,210,190],
-    'Discount': [10,15,12,10,20,18,22,25,30,28],
-    'Sales': [200,250,220,240,300,280,320,350,370,340]
-}
+from scipy.stats import pearsonr
+from sklearn.datasets import load_iris
 
-df=pd.DataFrame(data)
-print("dataset: ",df)
-corr=df.corr()
-print("\nCorrelation matrix:\n",corr)
-plt.imshow(corr)
-plt.colorbar()
-plt.xticks(range(len(corr)), corr.columns)
-plt.yticks(range(len(corr)), corr.columns)
+# Load dataset once
+iris = load_iris()
+df = pd.DataFrame(iris.data, columns=iris.feature_names)
 
-plt.title("Correlation Matrix Heatmap")
+# Individual Correlation between each pair
+cols = df.columns
+print("\nPairwise Correlations:")
+for i in range(len(cols)):
+    for j in range(i + 1, len(cols)):
+        corr, pval = pearsonr(df[cols[i]], df[cols[j]])
+        print(f"{cols[i]} vs {cols[j]} => r = {corr:.4f}, p-value = {pval:.6f}")
+
+# Full Correlation Matrix
+print("\nCorrelation Matrix:\n", df.corr().round(4))
+
+# Heatmap
+plt.figure(figsize=(8, 6))
+sns.heatmap(df.corr(), annot=True, fmt='.3f', cmap='coolwarm', square=True)
+plt.title('Correlation Heatmap - Iris Dataset')
+plt.tight_layout()
 plt.show()
