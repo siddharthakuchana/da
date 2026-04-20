@@ -1,41 +1,42 @@
-import pandas as pd
+
+import seaborn as sns
 import matplotlib.pyplot as plt
+import pandas as pd
+from sklearn.datasets import load_iris
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score, confusion_matrix
-data = {
-    'Age': [25, 45, 35, 50, 23, 40, 60, 55, 30, 48],
-    'BP': [120, 140, 130, 150, 110, 135, 160, 155, 125, 145],
-    'Cholesterol': [200, 240, 220, 260, 180, 230, 270, 250, 210, 245],
-    'Disease': [0, 1, 0, 1, 0, 1, 1, 1, 0, 1]   # 1 = Yes, 0 = No
-}
-df=pd.DataFrame(data)
-print("dataset:\n",df)
+from sklearn.metrics import accuracy_score
 
-X=df[['Age','BP','Cholesterol']]
-y=df['Disease']
-X_train,X_test,y_train,y_test=train_test_split(X_train, y_train, test_size=0.2, random_state=42)
-model=LogisticRegression()
-model.fit(X_train,y_train)
-y_pred=model.predict(X_test)
-accuracy=accuracy_score(y_test,y_pred)
-print("Accuracy: ",accuracy)
-cm=confusion_matrix(y_test,y_pred)
-print("Confusion Matrix:\n",cm)
-age=int(input("enter the age: "))
-bp=int(input("enter the bp: "))
-cholesterol=int(input("enter the cholesterol: "))
-prediction=model.predict([[age,bp,cholesterol]])
-if prediction[0]==1:
-    print("Disease: Yes")
-else:
-    print("Disease: No")
+# Load data
+df = pd.DataFrame(load_iris().data, columns=load_iris().feature_names)
 
-plt.scatter(range(len(y_test)),y_test,label="actual")
-plt.scatter(range(len(y_pred)),y_pred,label="predicted")
-plt.xlabel("TEST DATA INDEX")
-plt.ylabel("Class(0/1)")
-plt.title("Logistic regression")
-plt.legend()
+X = df[['sepal length (cm)']]
+y = (load_iris().target == 0).astype(int)   # binary (setosa vs rest)
+
+# Split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
+# Model
+model = LogisticRegression().fit(X_train, y_train)
+y_pred = model.predict(X_test)
+y_prob = model.predict_proba(X_test)[:,1]
+
+# Plot (Seaborn)
+sns.scatterplot(x=X_train.squeeze(), y=y_train, label='Train')
+sns.scatterplot(x=X_test.squeeze(), y=y_test, label='Test')
+sns.lineplot(x=X_test.squeeze(), y=y_prob, label='Probability Curve')
+
+plt.title("Logistic Regression (Iris Dataset)")
+plt.xlabel("Sepal Length")
+plt.ylabel("Class / Probability")
 plt.show()
 
+# Metrics
+print("Coefficient:", model.coef_[0][0])
+print("Intercept:", model.intercept_[0])
+print("Accuracy:", accuracy_score(y_test, y_pred))
+
+Coefficient: -3.088725487188623
+Intercept: 16.19885715682372
+Accuracy: 0.8666666666666667
+ 
